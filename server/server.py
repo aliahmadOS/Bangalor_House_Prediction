@@ -1,7 +1,14 @@
-from flask import Flask, request, jsonify
-import util
+from flask import Flask, request, jsonify, render_template
+import server.util as util  #replace this by import util for running locally
+# import util
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="/client", static_folder='../client', template_folder="../client")
+
+@app.route('/', methods=['GET'])
+def index():
+    if request.method=="GET":
+        return render_template("app.html")
+
 
 @app.route('/get_location_names', methods=['GET'])
 def get_location_names():
@@ -9,10 +16,9 @@ def get_location_names():
         'locations': util.get_location_names()
     })
     response.headers.add('Access-Control-Allow-Origin', '*')
-
     return response
 
-@app.route('/predict_home_price', methods=['GET', 'POST'])
+@app.route('/predict_home_price', methods=['POST'])
 def predict_home_price():
     total_sqft = float(request.form['total_sqft'])
     location = request.form['location']
@@ -28,5 +34,4 @@ def predict_home_price():
 
 if __name__ == "__main__":
     print("Starting Python Flask Server For Home Price Prediction...")
-    util.load_saved_artifacts()
     app.run()
